@@ -65,19 +65,28 @@ void CamApplication::on_timer(const boost::system::error_code& ec)
 
     auto position = positioning_.position_fix();
 
+    std::cout << "lat/long : " << position.latitude.value() << "/" << position.longitude.value() << std::endl;
+
+    double latitude = position.latitude.value();
+    double longitude = position.longitude.value();
+
+    const double LATITUDE = 51.413147;
+    const double LONGITUDE = 5.461634;
+    const int MICRO_DEGREES = 10000000;
+
+
     if (!position.confidence) {
-        schedule_timer();
-
-        std::cerr << "Skipping CAM, because no good position is available, yet." << std::endl;
-
-        return;
+        //schedule_timer();
+        //std::cerr << "Skipping CAM, because no good position is available, yet." << std::endl;
+        //return;
+        latitude = LATITUDE;
+        longitude = LONGITUDE;
     }
-
     BasicContainer_t& basic = cam.camParameters.basicContainer;
     basic.stationType = StationType_passengerCar;
     basic.referencePosition.altitude.altitudeValue = AltitudeValue_unavailable;
-    basic.referencePosition.longitude = position.longitude.value();
-    basic.referencePosition.latitude = position.latitude.value();
+    basic.referencePosition.longitude = longitude * MICRO_DEGREES;// position.longitude.value() * 10000000;
+    basic.referencePosition.latitude = latitude * MICRO_DEGREES;// position.latitude.value() * 10000000;
     basic.referencePosition.positionConfidenceEllipse.semiMajorOrientation = HeadingValue_unavailable;
     basic.referencePosition.positionConfidenceEllipse.semiMajorConfidence = SemiAxisLength_unavailable;
     basic.referencePosition.positionConfidenceEllipse.semiMinorConfidence = SemiAxisLength_unavailable;
